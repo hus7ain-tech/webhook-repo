@@ -90,16 +90,11 @@
 
                 let message = '';
 
-                // Format specific to PUSH [cite: 7, 8]
                 if (event.action === "PUSH") {
                     message = `"<span class="author">${event.author}</span>" pushed to "<span class="branch">${event.to_branch}</span>"`;
-                }
-                // Format specific to PULL_REQUEST [cite: 10, 11]
-                else if (event.action === "PULL_REQUEST") {
+                } else if (event.action === "PULL_REQUEST") {
                     message = `"<span class="author">${event.author}</span>" submitted a pull request from "<span class="branch">${event.from_branch}</span>" to "<span class="branch">${event.to_branch}</span>"`;
-                }
-                // Format specific to MERGE [cite: 13, 14]
-                else if (event.action === "MERGE") {
+                } else if (event.action === "MERGE") {
                     message = `"<span class="author">${event.author}</span>" merged branch "<span class="branch">${event.from_branch}</span>" to "<span class="branch">${event.to_branch}</span>"`;
                 }
 
@@ -111,9 +106,8 @@
             });
         }
 
-        // Fetch immediately on load
         fetchEvents();
-        // Keep pulling data from MongoDB every 15 seconds (15000 ms) [cite: 28]
+
         setInterval(fetchEvents, 15000);
     </script>
 </body>
