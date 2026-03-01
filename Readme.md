@@ -9,7 +9,7 @@ This repository contains a Python Flask-based webhook receiver designed to captu
 * **Data Parsing & Formatting:** Extracts relevant information (author, action type, source/target branches, and timestamp) and maps it to the strictly required MongoDB schema.
 * **Database Integration:** Securely connects to MongoDB Atlas using environment variables to store all captured event logs.
 * **Polling API:** Provides a `/api/events` GET endpoint that serves the latest 50 events in chronological order (newest first) for frontend consumption.
-* **Cross-Origin Resource Sharing (CORS):** Enabled to allow frontend applications to fetch data safely without encountering cross-origin network errors.
+
 
 ## Prerequisites
 * Python 3.8+
