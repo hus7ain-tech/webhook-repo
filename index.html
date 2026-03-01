@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Webhook UI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f6f8fa;
+            color: #24292e;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #24292e;
+        }
+
+        .event-card {
+            background: #ffffff;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-size: 15px;
+        }
+
+        .author {
+            font-weight: 600;
+            color: #0366d6;
+        }
+
+        .branch {
+            font-family: monospace;
+            background: #f1f8ff;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .timestamp {
+            color: #586069;
+            font-size: 13px;
+            display: block;
+            margin-top: 6px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 13px;
+            color: #586069;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Latest GitHub Actions</h2>
+    <div class="status" id="status">Waiting for data...</div>
+    <div id="events-container"></div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:5000/api/events';
+        const container = document.getElementById('events-container');
+        const statusEl = document.getElementById('status');
+
+        async function fetchEvents() {
+            try {
+                const response = await fetch(API_URL);
+                const events = await response.json();
+                renderEvents(events);
+                statusEl.innerText = `Last updated: ${new Date().toLocaleTimeString()}`;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                statusEl.innerText = "Error connecting to server. Server not running?";
+            }
+        }
+
+        function renderEvents(events) {
+            container.innerHTML = '';
+
+            events.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+
+                let message = '';
+
+                // Format specific to PUSH [cite: 7, 8]
+                if (event.action === "PUSH") {
+                    message = `"<span class="author">${event.author}</span>" pushed to "<span class="branch">${event.to_branch}</span>"`;
+                }
+                // Format specific to PULL_REQUEST [cite: 10, 11]
+                else if (event.action === "PULL_REQUEST") {
+                    message = `"<span class="author">${event.author}</span>" submitted a pull request from "<span class="branch">${event.from_branch}</span>" to "<span class="branch">${event.to_branch}</span>"`;
+                }
+                // Format specific to MERGE [cite: 13, 14]
+                else if (event.action === "MERGE") {
+                    message = `"<span class="author">${event.author}</span>" merged branch "<span class="branch">${event.from_branch}</span>" to "<span class="branch">${event.to_branch}</span>"`;
+                }
+
+                card.innerHTML = `
+                    <div>${message}</div>
+                    <span class="timestamp">on ${event.timestamp}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Fetch immediately on load
+        fetchEvents();
+        // Keep pulling data from MongoDB every 15 seconds (15000 ms) [cite: 28]
+        setInterval(fetchEvents, 15000);
+    </script>
+</body>
+
+</html>
